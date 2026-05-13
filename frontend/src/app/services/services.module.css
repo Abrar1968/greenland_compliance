@@ -1,0 +1,123 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 160px 1rem 4rem 1rem;
+}
+
+.tabs {
+  display: flex;
+  background-color: #222222;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  padding: 1rem 1.5rem;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .tabs {
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+  .tab {
+    padding: 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+.tab.active {
+  background-color: #79b940;
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem 4rem;
+  margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+  .serviceGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.serviceItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.titleWrapper {
+  display: flex;
+  align-items: baseline;
+  flex: 1;
+}
+
+.badge {
+  background-color: #79b940;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  margin-bottom: 0.25rem;
+  width: fit-content;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+.badge.special {
+  background-color: #444;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #222;
+  white-space: nowrap;
+}
+
+.dots {
+  flex: 1;
+  border-bottom: 1px dotted #79b940;
+  margin: 0 0.5rem;
+  height: 0.5rem;
+}
+
+.price {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #79b940;
+}
+
+.description {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #666;
+  font-weight: 400;
+}
