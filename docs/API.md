@@ -1,7 +1,8 @@
 # Greenland Business & Compliance — REST API Specification
 
 Project: Greenland Business & Compliance
-Base URL: `https://api.greenlandcompliance.com/api/v1` (production)
+Main frontend domain: `https://greenlandcompliance.com`
+Base URL: provided by environment (`NEXT_PUBLIC_API_URL` in the frontend). Production example: `<BACKEND_URL>/api/v1`
 Local dev: `http://localhost:8000/api/v1`
 Document purpose: Complete reference for every REST API endpoint exposed by the Laravel backend. The Next.js frontend consumes these endpoints to render all dynamic content. This document defines request parameters, response shapes, HTTP status codes, and the standard response envelope.
 
@@ -15,7 +16,7 @@ Every successful `GET` response returns HTTP 200 and wraps its payload in a `dat
 
 All timestamps are returned in ISO 8601 UTC format: `2026-05-13T10:30:00.000Z`.
 
-All image/file URLs returned by the API are fully qualified absolute URLs (e.g. `https://api.greenlandcompliance.com/storage/hero/hero1.jpg`). The frontend does not construct storage paths; it only uses what the API returns.
+All image/file URLs returned by the API are fully qualified absolute URLs based on the backend `APP_URL` (for example, `<BACKEND_URL>/storage/hero/hero1.jpg`). The frontend does not construct storage paths; it only uses what the API returns.
 
 Endpoints that return ordered lists always respect the `sort_order` column and return items sorted ascending by it. The frontend should render items in the order the API returns them.
 
@@ -85,7 +86,7 @@ The API is stateless and requires no authentication for public read endpoints. T
 
 ## 3. CORS Headers
 
-The API returns CORS headers on every response, allowing the configured Next.js frontend origins to make requests from the browser. Local development must allow `http://localhost:3000`; production must allow `https://greenlandcompliance.com` and `https://www.greenlandcompliance.com` if both domains are used. Server-side `fetch` calls from Next.js Server Components are not subject to CORS but still work through these same endpoints.
+The API returns CORS headers on every response, allowing the configured Next.js frontend origins to make requests from the browser. Local development must allow `http://localhost:3000`; production must allow the canonical frontend domain `https://greenlandcompliance.com` and `https://www.greenlandcompliance.com` if the `www` domain is enabled. Server-side `fetch` calls from Next.js Server Components are not subject to CORS but still work through these same endpoints.
 
 ```
 Access-Control-Allow-Origin: <matching configured frontend origin>
@@ -113,7 +114,7 @@ Returns the global site settings that are consumed by the root layout, navbar, a
     "site_name": "Greenland Business & Compliance",
     "meta_title": "Greenland Business & Compliance",
     "meta_description": "Professional Advisory, Accounting, and Regulatory solutions in Bangladesh",
-    "logo_url": "https://api.greenlandcompliance.com/storage/logo/gc.png",
+    "logo_url": "<BACKEND_URL>/storage/logo/gc.png",
     "primary_phone": "+8801987-644603",
     "primary_email": "contact@greenlandcompliance.com",
     "address": "Bottola Bazar, Bhakurta, Savar, Dhaka-1313, Bangladesh.",
@@ -124,7 +125,7 @@ Returns the global site settings that are consumed by the root layout, navbar, a
     "footer_cta_button_label": "Request a Free Quote",
     "footer_cta_button_href": "/contact",
     "copyright_text": "© 2026 Greenland Business & Compliance. All Rights Reserved.",
-    "company_presentation_url": "https://api.greenlandcompliance.com/storage/resources/company-presentation.pdf",
+    "company_presentation_url": "<BACKEND_URL>/storage/resources/company-presentation.pdf",
     "how_we_work_video_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
     "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!...",
     "office_image_url": null,
@@ -211,19 +212,19 @@ Returns the hero slider settings: the headline copy, CTA buttons, and the ordere
     "slides": [
       {
         "id": 1,
-        "image_url": "https://api.greenlandcompliance.com/storage/hero/hero1.jpg",
+        "image_url": "<BACKEND_URL>/storage/hero/hero1.jpg",
         "alt_text": "Hero slide 1",
         "sort_order": 1
       },
       {
         "id": 2,
-        "image_url": "https://api.greenlandcompliance.com/storage/hero/hero2..jpg",
+        "image_url": "<BACKEND_URL>/storage/hero/hero2..jpg",
         "alt_text": "Hero slide 2",
         "sort_order": 2
       },
       {
         "id": 3,
-        "image_url": "https://api.greenlandcompliance.com/storage/hero/hero3.jpg",
+        "image_url": "<BACKEND_URL>/storage/hero/hero3.jpg",
         "alt_text": "Hero slide 3",
         "sort_order": 3
       }
@@ -324,7 +325,7 @@ Returns all active case studies with their category. An optional `category` quer
       "id": 1,
       "title": "Healthcare giant overcomes merger in 2015",
       "slug": "healthcare-giant-overcomes-merger-2015",
-      "image_url": "https://api.greenlandcompliance.com/storage/case-studies/healthcare.jpg",
+      "image_url": "<BACKEND_URL>/storage/case-studies/healthcare.jpg",
       "summary": null,
       "sort_order": 1,
       "category": {
@@ -374,7 +375,7 @@ Returns full details for a single case study. Needed for a future case study det
     "id": 1,
     "title": "Healthcare giant overcomes merger in 2015",
     "slug": "healthcare-giant-overcomes-merger-2015",
-    "image_url": "https://api.greenlandcompliance.com/storage/case-studies/healthcare.jpg",
+    "image_url": "<BACKEND_URL>/storage/case-studies/healthcare.jpg",
     "summary": "A brief summary of the case study.",
     "body": "<p>Full HTML content of the case study...</p>",
     "sort_order": 1,
@@ -399,13 +400,13 @@ Returns all content for the `/about` page in a single payload. Because the About
 {
   "data": {
     "banner_label": "About Us",
-    "company_presentation_url": "https://api.greenlandcompliance.com/storage/resources/company-presentation.pdf",
+    "company_presentation_url": "<BACKEND_URL>/storage/resources/company-presentation.pdf",
 
     "hero": {
       "heading_line1": "Workshops",
       "heading_line2": "that awesome!",
       "paragraph": "We are a company that offers design and build services for you from initial sketches to the final construction.",
-      "image_url": "https://api.greenlandcompliance.com/storage/about/hero.png",
+      "image_url": "<BACKEND_URL>/storage/about/hero.png",
       "cta_label": "get a quote",
       "cta_href": "/contact"
     },
@@ -674,7 +675,7 @@ Returns all content for the `/about` page in a single payload. Because the About
         "author": "Damian Smulders",
         "role": "CEO, TechFlow",
         "quote": "The results were clear, professional, and persuasive, and the investors and advisors who have seen the materials loved them.",
-        "avatar_url": "https://api.greenlandcompliance.com/storage/about/avatar1.png",
+        "avatar_url": "<BACKEND_URL>/storage/about/avatar1.png",
         "sort_order": 1
       },
       {
@@ -682,7 +683,7 @@ Returns all content for the `/about` page in a single payload. Because the About
         "author": "Cintia Le Cane",
         "role": "Chairman, Harmony Corporation",
         "quote": "We thought a lot before choosing our compliance partner because we wanted to be sure our investment would yield results.",
-        "avatar_url": "https://api.greenlandcompliance.com/storage/about/avatar2.png",
+        "avatar_url": "<BACKEND_URL>/storage/about/avatar2.png",
         "sort_order": 2
       },
       {
@@ -690,7 +691,7 @@ Returns all content for the `/about` page in a single payload. Because the About
         "author": "Amanda Seyford",
         "role": "Founder & CEO, Arcade Systems",
         "quote": "We were amazed by how little effort was required on our part. An invaluable partner.",
-        "avatar_url": "https://api.greenlandcompliance.com/storage/about/avatar3.png",
+        "avatar_url": "<BACKEND_URL>/storage/about/avatar3.png",
         "sort_order": 3
       }
     ],
@@ -847,7 +848,7 @@ Returns all active publications for the Resources page Publications tab.
 }
 ```
 
-**Note on `file_url`:** When a file has been uploaded via the admin panel, `file_url` returns the absolute storage URL (e.g. `https://api.greenlandcompliance.com/storage/resources/gazette-2023.pdf`). When no file has been uploaded yet, it returns `null`. The frontend renders the download button regardless, linking to `#` when `file_url` is null and to the actual URL when it is set. This mirrors the current static behaviour exactly.
+**Note on `file_url`:** When a file has been uploaded via the admin panel, `file_url` returns the absolute storage URL (e.g. `<BACKEND_URL>/storage/resources/gazette-2023.pdf`). When no file has been uploaded yet, it returns `null`. The frontend renders the download button regardless, linking to `#` when `file_url` is null and to the actual URL when it is set. This mirrors the current static behaviour exactly.
 
 ---
 
@@ -1039,7 +1040,7 @@ Returns all active testimonials. Accepts an optional `page` query parameter (`ab
       "author": "Damian Smulders",
       "role": "CEO, TechFlow",
       "quote": "The results were clear, professional, and persuasive...",
-      "avatar_url": "https://api.greenlandcompliance.com/storage/about/avatar1.png",
+      "avatar_url": "<BACKEND_URL>/storage/about/avatar1.png",
       "sort_order": 1
     }
   ]

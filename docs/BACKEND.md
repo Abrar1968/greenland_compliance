@@ -11,7 +11,7 @@ Document purpose: Complete specification for a Laravel backend that powers the a
 
 The backend uses the following technology choices. Understanding why each was chosen helps you make decisions when the spec does not cover edge cases.
 
-**Laravel 11** is the application framework. It provides routing, Eloquent ORM, Artisan CLI, Blade templating, middleware, queues, and the file storage abstraction. Laravel 11 introduces a slimmer default application skeleton; the `bootstrap/app.php` file replaces the old `Kernel` classes.
+**Laravel 12** is the application framework. It provides routing, Eloquent ORM, Artisan CLI, Blade templating, middleware, queues, and the file storage abstraction. Laravel 12 uses the modern slim application skeleton; the `bootstrap/app.php` file is the routing, middleware, and exception configuration entry point instead of the old `Kernel` classes.
 
 **PHP 8.2 or higher** is required. Modern PHP features used heavily include constructor property promotion, enums, match expressions, and readonly properties.
 
@@ -19,7 +19,7 @@ The backend uses the following technology choices. Understanding why each was ch
 
 **Laravel Sanctum** handles session-based admin authentication. Because the admin panel is a Blade/server-rendered app, session cookies are appropriate. Sanctum is also used to issue API tokens if token-based API access is ever needed by the frontend.
 
-**Blade templating** with **Tailwind CSS v4** and **Alpine.js 3** powers the admin panel UI. Tailwind v4 is loaded via the standalone CDN build (`@tailwindcss/browser`) so that no separate build step is needed for the admin panel. Alpine.js is loaded from CDN as well. This keeps the backend deployable without a Node.js environment.
+**Blade templating** with **Tailwind CSS v4** and **Alpine.js 3** powers the admin panel UI. Tailwind CSS v4 is compiled through Laravel's Vite pipeline using the official Tailwind v4 Vite plugin included by the Laravel 12 skeleton. Alpine.js is loaded from CDN for lightweight admin interactions.
 
 **Laravel Storage (public disk)** handles all uploaded files. The `storage/app/public` directory is symlinked to `public/storage` via `php artisan storage:link`. All uploaded images and files are served from `/storage/...`.
 
@@ -190,10 +190,17 @@ APP_ENV=local
 APP_KEY=
 APP_DEBUG=true
 APP_URL=http://localhost:8000
+ADMIN_PANEL_URL=http://localhost:8000/admin
 
-# The Next.js frontend origin — used for CORS
+# The Next.js frontend origin(s) used for CORS
 FRONTEND_URL=http://localhost:3000
 FRONTEND_URLS=http://localhost:3000,https://greenlandcompliance.com,https://www.greenlandcompliance.com
+
+# Production deployment examples:
+# APP_URL=<BACKEND_URL>
+# ADMIN_PANEL_URL=<ADMIN_PANEL_URL>
+# FRONTEND_URL=https://greenlandcompliance.com
+# FRONTEND_URLS=https://greenlandcompliance.com,https://www.greenlandcompliance.com
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -213,6 +220,8 @@ SESSION_LIFETIME=120
 ADMIN_EMAIL=admin@greenlandcompliance.com
 ADMIN_PASSWORD=Admin@1234
 ```
+
+`APP_URL` is the backend base URL and is used to generate absolute storage URLs returned by the API. `ADMIN_PANEL_URL` is the externally reachable admin panel URL; it may be `<BACKEND_URL>/admin` or a separate admin subdomain, depending on deployment. `FRONTEND_URL` is the canonical public frontend URL and must be `https://greenlandcompliance.com` in production. `FRONTEND_URLS` is the full comma-separated CORS allow-list for browser requests.
 
 ---
 
@@ -1290,6 +1299,8 @@ public function logout(Request $request)
 
 ### 8.1 Web Routes (Admin Panel)
 
+The admin panel is exposed at `ADMIN_PANEL_URL`. If `ADMIN_PANEL_URL` is `<BACKEND_URL>/admin`, keep the `/admin` prefix below. If deployment uses a dedicated admin subdomain, route that subdomain to these same routes and keep the Laravel route names unchanged.
+
 ```php
 // routes/web.php
 
@@ -1394,11 +1405,47 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
 ---
 
-## 9. Admin Panel UI
+## 9. Admin CRUD To Frontend Coverage
 
-### 9.1 Master Layout
+The Blade admin panel is the write surface for site content. The Next.js frontend is not expected to call admin CRUD routes; it consumes the public REST API shapes documented in `API.md`. Every admin-managed resource below must either feed a public frontend section or be marked admin-only.
 
-The file `resources/views/layouts/admin.blade.php` wraps every admin page. It loads Tailwind CSS v4 and Alpine.js from CDN and provides the sidebar navigation, top bar, and main content area.
+| Admin resource | Admin capability | Frontend/API consumer |
+| --- | --- | --- |
+| Site settings | Edit single record | `GET /site`, layout metadata, Navbar, Footer, Contact, About video/presentation |
+| Hero settings | Edit single record | `GET /hero`, Home hero copy and CTAs |
+| Hero slides | Full CRUD + upload + order | `GET /hero`, Home hero slider |
+| Nav items | Full CRUD + order | `GET /navigation`, Navbar and Footer links |
+| Social links | Full CRUD + order | `GET /site` and `GET /contact`, Footer and Contact social icons |
+| Service categories | Full CRUD + order | `GET /services`, Services tabs |
+| Services | Full CRUD + order | `GET /services`, Services cards |
+| Case study categories | Full CRUD + order | `GET /case-studies`, case study category labels; `GET /case-studies/categories` reserved for future filters/admin previews |
+| Case studies | Full CRUD + upload + order | `GET /case-studies` and `GET /case-studies/{slug}` |
+| Testimonials | Full CRUD + avatar upload + order | bundled in `GET /about`; standalone `GET /testimonials?page=case_studies` |
+| About settings | Edit single record | `GET /about`, About hero, overview, approach intro, About footer CTA |
+| Timeline milestones | Full CRUD + order | `GET /about`, Overview timeline |
+| Mission bullets | Full CRUD + order | `GET /about`, Mission list |
+| Approach cards | Full CRUD + order | `GET /about`, Approach tab |
+| Achievements | Full CRUD + upload + order | `GET /about`, Achievement tab |
+| Partners | Full CRUD + optional logo upload + order | `GET /about`, Partners tab |
+| Team members | Full CRUD + optional image upload + order | `GET /about`, Team tab |
+| FAQs | Full CRUD + order | `GET /about`, FAQ tab |
+| Contact departments | Full CRUD + order | `GET /contact`, Contact department sidebar |
+| Publications | Full CRUD + file upload + order | `GET /resources/publications`, Resources publications tab |
+| Form templates | Full CRUD + file upload + order | `GET /resources/forms`, Resources forms tab |
+| News posts | Full CRUD + image/upload/link + order | `GET /resources/news`, Resources news tab |
+| Contact messages | Read, mark read, delete | Created by `POST /contact`; visible only in admin inbox |
+| Pages | Full CRUD for `privacy`, `terms`, `cookies` | `GET /pages/{slug}`, policy pages |
+| Reorder endpoint | AJAX order updates | Admin-only helper; affects public endpoint ordering |
+
+CRUD support is complete when each full CRUD resource has index/create/store/edit/update/destroy screens, validation, active status where documented, sort order where documented, and media/file deletion on replacement. Single-record settings screens are intentionally edit/update only.
+
+---
+
+## 10. Admin Panel UI
+
+### 10.1 Master Layout
+
+The file `resources/views/layouts/admin.blade.php` wraps every admin page. It loads the compiled Tailwind CSS v4 admin bundle through Laravel Vite and Alpine.js from CDN, then provides the sidebar navigation, top bar, and main content area.
 
 ```blade
 <!DOCTYPE html>
@@ -1407,20 +1454,7 @@ The file `resources/views/layouts/admin.blade.php` wraps every admin page. It lo
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin') — Greenland Compliance</title>
-    <!-- Tailwind CSS v4 standalone CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary:   '#79b940',
-                        secondary: '#222222',
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -1489,7 +1523,7 @@ The file `resources/views/layouts/admin.blade.php` wraps every admin page. It lo
 </html>
 ```
 
-### 9.2 Sidebar Navigation Groups
+### 10.2 Sidebar Navigation Groups
 
 The sidebar groups admin resources logically. This is rendered by `admin.partials.sidebar-nav`.
 
@@ -1540,7 +1574,7 @@ CMS Pages
   └── Pages (privacy/terms/cookies)
 ```
 
-### 9.3 Example CRUD Controller: ServiceController (Admin)
+### 10.3 Example CRUD Controller: ServiceController (Admin)
 
 ```php
 // app/Http/Controllers/Admin/ServiceController.php
@@ -1594,7 +1628,7 @@ public function destroy(Service $service)
 }
 ```
 
-### 9.4 Example CRUD Controller: HeroSlideController (Admin)
+### 10.4 Example CRUD Controller: HeroSlideController (Admin)
 
 ```php
 public function store(Request $request)
@@ -1646,7 +1680,7 @@ public function update(Request $request, HeroSlide $heroSlide)
 
 The same file upload pattern (validate image, `store('subdirectory', 'public')`, delete old file on update) applies to: SiteSettings (logo, office_image), CaseStudy (image), TeamMember (image), Achievement (image), NewsPost (image), AboutSettings (hero_image), and Testimonial (avatar).
 
-### 9.5 Example Blade View: Services Index
+### 10.5 Example Blade View: Services Index
 
 ```blade
 {{-- resources/views/admin/services/index.blade.php --}}
@@ -1725,7 +1759,7 @@ The same file upload pattern (validate image, `store('subdirectory', 'public')`,
 @endsection
 ```
 
-### 9.6 Blade Form Partials
+### 10.6 Blade Form Partials
 
 Reusable Blade components live in `resources/views/components/`. They accept props and keep forms consistent.
 
@@ -1755,7 +1789,7 @@ The `<x-form-input>` component renders a labeled `<input>` with error styling. T
 </div>
 ```
 
-### 9.7 Dashboard
+### 10.7 Dashboard
 
 The dashboard shows at-a-glance counts for every major entity and the last five unread contact messages.
 
@@ -1780,7 +1814,7 @@ public function index()
 
 ---
 
-## 10. CORS Configuration
+## 11. CORS Configuration
 
 ```php
 // config/cors.php
@@ -1801,7 +1835,7 @@ return [
 
 ---
 
-## 11. Media File Migration Plan
+## 12. Media File Migration Plan
 
 When first deploying, the following files must be copied from the Next.js `frontend/public/` directory into `backend/storage/app/public/` to preserve existing assets:
 
@@ -1820,7 +1854,7 @@ After copying, run `php artisan storage:link` once to create the `public/storage
 
 ---
 
-## 12. API Controllers (Thin Read Layer)
+## 13. API Controllers (Thin Read Layer)
 
 API controllers query models and return JSON. They do not contain business logic. Each follows this structure:
 
@@ -1867,11 +1901,19 @@ The complete API response shapes are documented in the separate `API.md` file.
 
 ---
 
-## 13. Artisan Commands Quick Reference
+## 14. Artisan Commands Quick Reference
 
 ```bash
-# Install Laravel
-composer create-project laravel/laravel backend
+# Install the Laravel 12 backend with MySQL selected
+composer global require laravel/installer
+laravel new backend --database=mysql --phpunit --no-boost
+
+# Install PHP dependencies
+composer install
+
+# Install Tailwind CSS v4 / Vite frontend assets for Blade admin
+npm install
+npm run build
 
 # Install Sanctum
 composer require laravel/sanctum
@@ -1892,7 +1934,7 @@ php artisan tinker
 
 ---
 
-## 14. Notes On Known Frontend Content Issues
+## 15. Notes On Known Frontend Content Issues
 
 The following issues were flagged in the frontend inventory. They should be corrected in the seeded data or the admin panel rather than propagated:
 

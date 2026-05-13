@@ -30,7 +30,7 @@ The table below lists every file that is created or modified. Files not in this 
 | Action | Path | Reason |
 | --- | --- | --- |
 | Modify | `next.config.ts` | Add `remotePatterns` for the API storage domain |
-| Add | `.env.local` (not committed) | `NEXT_PUBLIC_API_URL` environment variable |
+| Add | `.env.local` (not committed) | `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SITE_URL` environment variables |
 | Add | `src/lib/api.ts` | Central typed fetch helper for all API calls |
 | Add | `src/types/api.ts` | TypeScript interfaces for every API response shape |
 | Modify | `src/app/layout.tsx` | Fetch site settings and navigation; pass as props |
@@ -47,8 +47,24 @@ The table below lists every file that is created or modified. Files not in this 
 | Add | `src/app/terms/page.tsx` | CMS page consumer for `/terms` slug |
 | Add | `src/app/cookies/page.tsx` | CMS page consumer for `/cookies` slug |
 | Delete | `src/lib/prisma.ts` | No longer used; Prisma is replaced by the Laravel API |
+| Delete | `prisma.config.ts` | No longer used |
 | Delete | `prisma/schema.prisma` | No longer used |
 | Delete | `prisma/seed.ts` | No longer used |
+| Modify | `package.json` / `package-lock.json` | Remove unused Prisma package entries and regenerate lockfile |
+
+---
+
+## 2.1 Implementation Prerequisite: Read The Installed Next.js Docs
+
+Before editing any Next.js source file, read the relevant guide under `frontend/node_modules/next/dist/docs/`. The repository-level `AGENTS.md` says this project uses a Next.js version with breaking changes, so implementation must follow the installed local documentation instead of older framework assumptions.
+
+At minimum, check the local docs for:
+
+- App Router Server Components and Client Components.
+- `next/image` remote image configuration.
+- Route handlers, metadata, caching, and revalidation behavior used by the current installed Next.js version.
+
+Do this before changing `layout.tsx`, page files, `next.config.ts`, or data-fetching code.
 
 ---
 
@@ -61,12 +77,14 @@ Create a `.env.local` file in the `frontend/` root. This file must not be commit
 # Base URL of the Laravel backend API, no trailing slash.
 # For local development this points to the Laravel dev server.
 NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# For production, set this to:
-# NEXT_PUBLIC_API_URL=https://api.greenlandcompliance.com/api/v1
+# For production, set these to the real deployed URLs:
+# NEXT_PUBLIC_API_URL=<BACKEND_URL>/api/v1
+# NEXT_PUBLIC_SITE_URL=https://greenlandcompliance.com
 ```
 
-The variable is prefixed with `NEXT_PUBLIC_` so it is available in both Server Components and Client Components. Although server-side code could use a non-public variable, using a consistent single variable for both environments simplifies the setup and avoids the need for two differently-named variables pointing to the same URL.
+The variables are prefixed with `NEXT_PUBLIC_` so they are available in both Server Components and Client Components. `NEXT_PUBLIC_SITE_URL` is the canonical frontend URL; for production it must be `https://greenlandcompliance.com`. `NEXT_PUBLIC_API_URL` is the Laravel REST API base URL and must be provided from the backend deployment URL.
 
 ---
 
@@ -81,6 +99,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
+const apiOrigin = new URL(apiUrl);
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -96,9 +116,10 @@ const nextConfig: NextConfig = {
         pathname: '/storage/**',
       },
       {
-        // Production API domain
-        protocol: 'https',
-        hostname: 'api.greenlandcompliance.com',
+        // Backend storage host from NEXT_PUBLIC_API_URL.
+        protocol: apiOrigin.protocol.replace(':', '') as 'http' | 'https',
+        hostname: apiOrigin.hostname,
+        port: apiOrigin.port,
         pathname: '/storage/**',
       },
     ],
@@ -108,7 +129,7 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 
-The current project uses an ESM `next.config.ts`, so keep the `fileURLToPath(import.meta.url)` root calculation exactly as shown above. Do not replace it with `__dirname`. Every image that previously came from the `public/` directory now comes from the API as an absolute URL under `/storage/...`. The `remotePatterns` entries above cover both environments. The existing local `public/` images (logo, hero, about) are migrated to the Laravel storage by the backend team following the steps in `BACKEND.md` section 11, so those local paths remain only as transition fallbacks.
+The current project uses an ESM `next.config.ts`, so keep the `fileURLToPath(import.meta.url)` root calculation exactly as shown above. Do not replace it with `__dirname`. Every image that previously came from the `public/` directory now comes from the API as an absolute URL under `/storage/...`. The `remotePatterns` entries above cover both environments. The existing local `public/` images (logo, hero, about) are migrated to the Laravel storage by the backend team following the steps in `BACKEND.md` section 12, so those local paths remain only as transition fallbacks.
 
 ---
 
@@ -1422,7 +1443,7 @@ export default function CaseStudiesPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const presentationUrl = site?.company_presentation_url ?? '#';
+  const presentationUrl = site?.company_presentation_url ?? null;
 
   if (loading) {
     return (
@@ -1467,20 +1488,32 @@ export default function CaseStudiesPage() {
         <aside className={styles.sidebar}>
 
           {/* Presentation download — wired to real URL */}
-          <a
-            href={presentationUrl}
-            target={presentationUrl === '#' ? undefined : '_blank'}
-            rel={presentationUrl === '#' ? undefined : 'noopener noreferrer'}
-            className={styles.downloadBox}
-          >
-            <div className={styles.iconCircle}>
-              <Play size={20} className="fill-white text-white ml-1" />
+          {presentationUrl ? (
+            <a
+              href={presentationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.downloadBox}
+            >
+              <div className={styles.iconCircle}>
+                <Play size={20} className="fill-white text-white ml-1" />
+              </div>
+              <div>
+                <span className={styles.downloadLabel}>Download</span>
+                <div className={styles.downloadTitle}>Company presentation</div>
+              </div>
+            </a>
+          ) : (
+            <div className={styles.downloadBox} aria-disabled="true">
+              <div className={styles.iconCircle}>
+                <Play size={20} className="fill-white text-white ml-1" />
+              </div>
+              <div>
+                <span className={styles.downloadLabel}>Download</span>
+                <div className={styles.downloadTitle}>Company presentation</div>
+              </div>
             </div>
-            <div>
-              <span className={styles.downloadLabel}>Download</span>
-              <div className={styles.downloadTitle}>Company presentation</div>
-            </div>
-          </a>
+          )}
 
           {/* Help box — unchanged static content */}
           <div className={styles.helpBox}>
@@ -1632,7 +1665,7 @@ export default function AboutPage() {
   const heroCtaLabel  = d?.hero.cta_label ?? 'get a quote';
   const heroCtaHref   = d?.hero.cta_href  ?? '/contact';
   const bannerLabel   = d?.banner_label   ?? 'About Us';
-  const presentationUrl = d?.company_presentation_url ?? '#';
+  const presentationUrl = d?.company_presentation_url ?? null;
 
   return (
     <div style={{ paddingTop: '120px', paddingBottom: '80px', background: '#fff' }}>
@@ -1723,14 +1756,23 @@ export default function AboutPage() {
             {/* Presentation download — wired to company_presentation_url from GET /about */}
             {/* GET /about includes company_presentation_url so this button is functional */}
             <div className="bg-gray-800 text-white rounded p-4">
-              <a
-                href={presentationUrl}
-                target={presentationUrl === '#' ? undefined : '_blank'}
-                rel={presentationUrl === '#' ? undefined : 'noopener noreferrer'}
-                className="flex items-center gap-2 text-sm font-semibold mb-1"
-              >
-                <Play size={14} /> Download
-              </a>
+              {presentationUrl ? (
+                <a
+                  href={presentationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm font-semibold mb-1"
+                >
+                  <Play size={14} /> Download
+                </a>
+              ) : (
+                <div
+                  aria-disabled="true"
+                  className="flex items-center gap-2 text-sm font-semibold mb-1 opacity-60"
+                >
+                  <Play size={14} /> Download
+                </div>
+              )}
               <p className="text-xs text-gray-400">Company presentation</p>
             </div>
 
@@ -2642,7 +2684,7 @@ The caching decisions in this document follow the guidance in `API.md` section 6
 During the transition period — after the frontend is updated but before the backend team has migrated all images to Laravel storage — the local `public/` assets remain in place and serve as the fallback for null API `image_url` values. The fallback logic in every component checks for `null` before using a remote URL and falls back to the local path.
 
 Once the backend team has:
-1. Copied all images to `backend/storage/app/public/` (per `BACKEND.md` section 11).
+1. Copied all images to `backend/storage/app/public/` (per `BACKEND.md` section 12).
 2. Run `php artisan storage:link`.
 3. Updated the database seeders to populate the correct storage paths.
 4. Confirmed that all `image_url` fields return non-null values.
@@ -2653,7 +2695,7 @@ At that point, the local `public/Background Img/`, `public/about/`, and `public/
 
 ## 21. Data Quality Corrections Applied In This Migration
 
-The following issues from the static inventory are corrected as part of this migration. They are corrected in the backend seeders (see `BACKEND.md` section 14), so the API returns clean data. The frontend simply renders what the API returns; no special frontend logic is needed to handle these.
+The following issues from the static inventory are corrected as part of this migration. They are corrected in the backend seeders (see `BACKEND.md` section 15), so the API returns clean data. The frontend simply renders what the API returns; no special frontend logic is needed to handle these.
 
 The mojibake in the copyright text is corrected — the API returns a clean UTF-8 string. The FAQ open indicator mojibake is replaced with the standard en-dash `–` character in the frontend JSX (not relying on the API). The mission bullet dash mojibake is cleaned in the seeder — the API returns `—`. The `Contact US` nav label capitalisation is preserved in the seeder as-is (the admin can fix it through the panel). The `Any Quires` department name is seeded as `Any Queries`. The `Govt. Gaget` category is seeded as `Govt. Gazette`. Service prices are seeded as USD strings matching the current frontend; the admin should update them to BDT pricing.
 
@@ -2667,7 +2709,26 @@ The Navbar search icon is intentionally visual-only in this migration because th
 
 ---
 
-## 23. Component Prop Interface Summary
+## 23. Admin CRUD Compatibility
+
+The Next.js frontend does not call Laravel admin CRUD routes directly. Admin CRUD changes are supported through the public API endpoints consumed in this document:
+
+| Admin-managed content | Frontend support |
+| --- | --- |
+| Site settings, social links, footer CTA, nav items | `layout.tsx`, `Navbar`, `Footer`, and Contact page API data |
+| Hero settings and slides | Home page `Hero` component via `GET /hero` |
+| Service categories and services | Services page tabs/cards via `GET /services` |
+| Case studies and categories | Case Studies page via `GET /case-studies`; category endpoint is reserved for future filters |
+| About settings, timeline, mission, approach, achievements, partners, team, FAQs, testimonials | About page via bundled `GET /about` payload |
+| Contact departments and contact messages | Contact page via `GET /contact` and `POST /contact` |
+| Publications, forms/templates, news posts | Resources page tabs via `GET /resources/*` |
+| CMS pages | `/privacy`, `/terms`, `/cookies` via `GET /pages/{slug}` |
+
+This means backend CRUD is frontend-compatible when every admin save changes the corresponding public API response without requiring frontend code edits.
+
+---
+
+## 24. Component Prop Interface Summary
 
 This table lists every component that gains new props, for quick reference during implementation.
 
@@ -2683,11 +2744,13 @@ All page components (`services/page.tsx`, `about/page.tsx`, etc.) receive no pro
 
 ---
 
-## 24. Implementation Checklist
+## 25. Implementation Checklist
 
 Work through these steps in order. Each step is independently testable.
 
-**Step 1:** Add `.env.local` with `NEXT_PUBLIC_API_URL`. Confirm the variable is readable in a Server Component by temporarily logging it in `layout.tsx`.
+**Step 0:** Before editing any Next.js source file, read the relevant local Next.js documentation under `frontend/node_modules/next/dist/docs/`, as required by `AGENTS.md`.
+
+**Step 1:** Add `.env.local` with `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SITE_URL`. Confirm both variables are readable in a Server Component by temporarily logging them in `layout.tsx`.
 
 **Step 2:** Update `next.config.ts` with the `remotePatterns` block. Run `npm run build` — it should succeed.
 
@@ -2711,11 +2774,11 @@ Work through these steps in order. Each step is independently testable.
 
 **Step 12:** Update `contact/page.tsx`. Verify the map loads, contact details are correct, the form submits successfully, and field validation errors display.
 
-**Step 13:** Update `resources/page.tsx`. Verify all three tabs show content, format badges have the correct colours, and download links are either real URLs or `#`.
+**Step 13:** Update `resources/page.tsx`. Verify all three tabs show content, format badges have the correct colours, and download links are either real URLs or an intentionally disabled/unavailable visual state. Do not leave permanent `href="#"` controls for API-backed downloads.
 
 **Step 14:** Create `privacy/page.tsx`, `terms/page.tsx`, and `cookies/page.tsx`. Verify the routes exist and render either the CMS content or the "being prepared" fallback.
 
-**Step 15:** Delete `src/lib/prisma.ts`, `prisma/schema.prisma`, `prisma/seed.ts`. Run `npm run build` to confirm no imports were missed.
+**Step 15:** Delete `src/lib/prisma.ts`, `prisma.config.ts`, `prisma/schema.prisma`, and `prisma/seed.ts`. Remove `@prisma/client`, `prisma`, the root Prisma seed block, and `ts-node` if it is only used for the Prisma seed script from `package.json`; regenerate `package-lock.json`. Run `npm run build` to confirm no imports were missed.
 
 **Step 16:** Run `npm run lint` and resolve any TypeScript or ESLint warnings.
 
@@ -2723,11 +2786,13 @@ Work through these steps in order. Each step is independently testable.
 
 ---
 
-## 25. File Coverage Checklist
+## 26. File Coverage Checklist
 
 Files that must be created or modified to complete this migration:
 
-- `frontend/.env.local` — add
+Environment coverage: `frontend/.env.local` must include both `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SITE_URL`.
+
+- `frontend/.env.local` — add with `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SITE_URL`
 - `frontend/next.config.ts` — modify
 - `frontend/src/types/api.ts` — add
 - `frontend/src/lib/api.ts` — add
@@ -2750,5 +2815,8 @@ Files that must be created or modified to complete this migration:
 - `frontend/src/app/terms/page.tsx` — add
 - `frontend/src/app/cookies/page.tsx` — add
 - `frontend/src/lib/prisma.ts` — delete
+- `frontend/prisma.config.ts` — delete
 - `frontend/prisma/schema.prisma` — delete
 - `frontend/prisma/seed.ts` — delete
+- `frontend/package.json` — remove unused Prisma dependencies, dev dependencies, and seed config
+- `frontend/package-lock.json` — regenerate after Prisma package removal

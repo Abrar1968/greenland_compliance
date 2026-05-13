@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Greenland Business & Compliance Frontend
 
-## Getting Started
+This directory contains the Next.js frontend for Greenland Business & Compliance.
 
-First, run the development server:
+The current frontend was originally static. The implementation plan is to keep the existing visual structure unchanged and replace hard-coded page content with data from the Laravel REST API documented in the repository docs.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Required Reading Before Implementation
+
+Before editing frontend code, read the relevant local Next.js documentation under:
+
+```text
+node_modules/next/dist/docs/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The installed Next.js version may have breaking changes compared with older examples. Follow the local docs for App Router, data fetching, caching, images, and config behavior.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Main Docs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `../docs/FRONTEND_DYNAMIC.md` - complete static-to-dynamic migration plan.
+- `../docs/API.md` - public Laravel REST API contract consumed by the frontend.
+- `../docs/BACKEND.md` - Laravel backend and Blade admin implementation plan.
+- `./FRONTEND_STATIC_INVENTORY.md` - factual snapshot of the current static frontend.
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+Create `frontend/.env.local` locally:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Production values:
 
-## Deploy on Vercel
+```dotenv
+NEXT_PUBLIC_API_URL=<BACKEND_URL>/api/v1
+NEXT_PUBLIC_SITE_URL=https://greenlandcompliance.com
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Install dependencies and run the frontend from this directory:
+
+```bash
+npm install
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
+## Migration Rules
+
+- Do not change the visual layout while converting static data to API data.
+- Do not edit CSS modules unless the static source already requires it.
+- Keep API responses wrapped in the documented `data` envelope.
+- Use `NEXT_PUBLIC_API_URL` for backend API calls.
+- Use `NEXT_PUBLIC_SITE_URL` as the canonical frontend URL.
+- Remove unused Prisma files and package entries after the frontend fully uses the Laravel API.

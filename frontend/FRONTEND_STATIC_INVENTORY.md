@@ -45,7 +45,7 @@ Note: `dev` currently uses webpack because default Turbopack dev mode was accept
 - `eslint.config.mjs`
   - Uses Next core web vitals and TypeScript rules.
 - `README.md`
-  - Still default create-next-app README.
+  - Project-specific frontend README with dynamic migration references and environment setup notes.
 
 ### Global Styles
 
@@ -1558,7 +1558,7 @@ Read and represented in this inventory:
 - `postcss.config.mjs`
 - `eslint.config.mjs`
 - `prisma.config.ts`
-- `README.md` as default starter README
+- `README.md` as project-specific frontend README
 - `src/app/layout.tsx`
 - `src/app/page.tsx`
 - `src/app/globals.css`
