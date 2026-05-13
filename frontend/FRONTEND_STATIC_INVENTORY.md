@@ -1536,7 +1536,19 @@ These are not changed here, but they matter when turning content dynamic.
 14. Contact page office image is a placeholder.
 15. Privacy/terms/cookies links point to missing routes.
 
-## 18. File Coverage Checklist
+## 18. Implementation Readiness Corrections
+
+This file remains a factual snapshot of the static frontend as it exists before dynamic migration. Do not rewrite the facts above to match the future implementation.
+
+The implementation-safe conversion rules are now maintained in the three project docs:
+
+- `docs/FRONTEND_DYNAMIC.md` contains the corrected migration snippets and must preserve the real CSS module class names from the current frontend.
+- `docs/API.md` defines the canonical public REST contract, including the standard `data` response envelope and global footer/site fields.
+- `docs/BACKEND.md` defines the matching Laravel schema, seed data, routes, CORS setup, media migration rules, and API controller response envelope.
+
+When implementing the dynamic migration, use this inventory to verify that no static section, subsection, asset, button, link, or placeholder has been missed, but use the corrected docs above as the implementation authority.
+
+## 19. File Coverage Checklist
 
 Read and represented in this inventory:
 
