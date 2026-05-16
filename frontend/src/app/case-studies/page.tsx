@@ -1,98 +1,77 @@
 'use client';
 
+import { type ReactNode, useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Play, Quote } from 'lucide-react';
+import { fetchCaseStudies, fetchSiteSettings, fetchTestimonials } from '@/lib/api';
+import type { CaseStudy, SiteSettings, Testimonial as TestimonialType } from '@/types/api';
 import styles from './case-studies.module.css';
 
-const CASE_STUDIES = [
-  {
-    category: 'Business Services',
-    title: 'Healthcare giant overcomes merger in 2015',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Healthcare'
-  },
-  {
-    category: 'Travel & Aviation',
-    title: 'Focus on core delivers growth for retailer trading',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Travel'
-  },
-  {
-    category: 'Business Services',
-    title: 'Transformation sparks financial income for all',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Transformation'
-  },
-  {
-    category: 'Business Services',
-    title: 'Increased sales productivity frees selling time and saves millions',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Productivity'
-  },
-  {
-    category: 'Energy & Environment',
-    title: 'Constructing a best-in-class global procurement',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Energy'
-  },
-  {
-    category: 'Business Services',
-    title: 'Turning around a reactive pharma supply chain',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Pharma'
-  },
-  {
-    category: 'Financial Services',
-    title: 'Leading consumer products companies',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Financial'
-  },
-  {
-    category: 'Surface Transport & Logistics',
-    title: 'Bain helps transportation & logistics companies',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Logistics'
-  },
-  {
-    category: 'Energy & Environment',
-    title: 'Developing a strategy and roadmap for clients',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Strategy'
-  },
-  {
-    category: 'Business Services',
-    title: 'Constructing the best-in-class global',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Global'
-  },
-  {
-    category: 'Surface Transport & Logistics',
-    title: 'Demand as transportation services as',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Demand'
-  },
-  {
-    category: 'Consumer Products',
-    title: 'Pricing games: A technology company',
-    image: 'https://placehold.co/600x450/f3f4f6/666?text=Pricing'
-  }
-];
-
 export default function CaseStudiesPage() {
+  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
+  const [testimonials, setTestimonials] = useState<TestimonialType[]>([]);
+  const [site, setSite] = useState<SiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetchCaseStudies(),
+      fetchTestimonials('case_studies'),
+      fetchSiteSettings(),
+    ])
+      .then(([studies, testimonialData, siteData]) => {
+        setCaseStudies(studies);
+        setTestimonials(testimonialData);
+        setSite(siteData);
+      })
+      .catch(() => {
+        setCaseStudies([]);
+        setTestimonials([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <main className={styles.container}>
       <div className={styles.layout}>
-        {/* Main Content - Grid of Case Studies */}
         <div className={styles.mainContent}>
+          {loading && (
+            <div className="text-center py-20 text-gray-400">Loading case studies...</div>
+          )}
+
+          {!loading && caseStudies.length === 0 && (
+            <div className="text-center py-20 text-gray-400">No case studies are available yet.</div>
+          )}
+
           <div className={styles.grid}>
-            {CASE_STUDIES.map((study, index) => (
-              <div key={index} className={styles.caseItem}>
+            {caseStudies.map((study) => (
+              <div key={study.id} className={styles.caseItem}>
                 <div className={styles.imageWrapper}>
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold italic">
-                    img here
-                  </div>
+                  {study.image_url ? (
+                    <Image
+                      src={study.image_url}
+                      alt={study.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold italic">
+                      img here
+                    </div>
+                  )}
                 </div>
-                <span className={styles.category}>{study.category}</span>
+                <span className={styles.category}>{study.category.name}</span>
                 <h3 className={styles.title}>{study.title}</h3>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Sidebar - Shared elements from About Us */}
         <aside className={styles.sidebar}>
           <div className="space-y-8">
-            {/* Download Presentation */}
-            <button className={styles.downloadBox}>
+            <ConditionalDownloadBox href={site?.company_presentation_url}>
               <div className={styles.iconCircle}>
                 <Play size={20} className="fill-white text-white ml-1" />
               </div>
@@ -100,9 +79,8 @@ export default function CaseStudiesPage() {
                 <span className={styles.downloadLabel}>Download</span>
                 <div className={styles.downloadTitle}>Company presentation</div>
               </div>
-            </button>
+            </ConditionalDownloadBox>
 
-            {/* Help Box */}
             <div className={styles.helpBox}>
               <h4 className={styles.helpTitle}>How can we help you?</h4>
               <p className={styles.helpDesc}>
@@ -113,23 +91,10 @@ export default function CaseStudiesPage() {
               </Link>
             </div>
 
-            {/* Testimonials */}
             <div className="space-y-6">
-              <Testimonial
-                quote="The results were clear, professional, and persuasive, and the investors and advisors who have seen the materials loved them. They know what investors want."
-                author="Damian Smulders"
-                role="CEO, TechFlow"
-              />
-              <Testimonial
-                quote="We thought a lot before choosing the Financial WordPress Theme because we wanted to sure our investment would yield results. Consulting theme is an invaluable partner."
-                author="Cintia Le Cane"
-                role="Chairman, Harmony Corporation"
-              />
-              <Testimonial
-                quote="We were amazed by how little effort was required on our part to have Consulting WP prepare these materials. We exchanged a few phone calls. Consulting theme is an invaluable partner."
-                author="Amanda Seyford"
-                role="Founder & CEO, Arcade Systems"
-              />
+              {testimonials.map((testimonial) => (
+                <Testimonial key={testimonial.id} testimonial={testimonial} />
+              ))}
             </div>
           </div>
         </aside>
@@ -138,21 +103,46 @@ export default function CaseStudiesPage() {
   );
 }
 
-function Testimonial({ quote, author, role }: { quote: string; author: string; role: string }) {
+function ConditionalDownloadBox({ href, children }: { href?: string | null; children: ReactNode }) {
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={styles.downloadBox}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <div className={`${styles.downloadBox} opacity-70 cursor-not-allowed`} aria-disabled="true">
+      {children}
+    </div>
+  );
+}
+
+function Testimonial({ testimonial }: { testimonial: TestimonialType }) {
   return (
     <div className={styles.testimonial}>
-      <p className={styles.quoteText}>&quot;{quote}&quot;</p>
+      <p className={styles.quoteText}>&quot;{testimonial.quote}&quot;</p>
       <div className={styles.quoteIcon}>
         <Quote size={48} fill="currentColor" />
       </div>
       <div className={styles.authorRow}>
         <div className={styles.avatar}>
-          {/* Avatar placeholder */}
-          <div className="w-full h-full bg-gray-200" />
+          {testimonial.avatar_url ? (
+            <Image
+              src={testimonial.avatar_url}
+              alt={testimonial.author}
+              fill
+              sizes="48px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200" />
+          )}
         </div>
         <div>
-          <div className={styles.authorName}>{author}</div>
-          <div className={styles.authorRole}>{role}</div>
+          <div className={styles.authorName}>{testimonial.author}</div>
+          <div className={styles.authorRole}>{testimonial.role}</div>
         </div>
       </div>
     </div>

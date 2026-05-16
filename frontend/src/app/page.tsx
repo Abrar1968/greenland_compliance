@@ -1,10 +1,13 @@
 import Hero from "@/components/Hero";
+import { safeApiFetch } from "@/lib/api";
+import type { HeroData } from "@/types/api";
 
-export default function Home() {
+export default async function Home() {
+  const hero = await safeApiFetch<HeroData>("/hero", { revalidate: 60 });
+
   return (
     <main>
-      <Hero />
-      {/* Other sections will be added here later */}
+      <Hero data={hero} />
     </main>
   );
 }

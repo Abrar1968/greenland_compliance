@@ -848,7 +848,7 @@ Returns all active publications for the Resources page Publications tab.
 }
 ```
 
-**Note on `file_url`:** When a file has been uploaded via the admin panel, `file_url` returns the absolute storage URL (e.g. `<BACKEND_URL>/storage/resources/gazette-2023.pdf`). When no file has been uploaded yet, it returns `null`. The frontend renders the download button regardless, linking to `#` when `file_url` is null and to the actual URL when it is set. This mirrors the current static behaviour exactly.
+**Note on `file_url`:** When a file has been uploaded via the admin panel, `file_url` returns the absolute storage URL (e.g. `<BACKEND_URL>/storage/resources/gazette-2023.pdf`). When no file has been uploaded yet, it returns `null`. The frontend renders the same visual download control, but as an intentionally disabled/unavailable visual state instead of a permanent fake `href="#"` link.
 
 ---
 
