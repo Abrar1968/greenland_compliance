@@ -70,7 +70,7 @@ export default function AboutPage() {
       <div className="w-full h-[60px] mb-12">
         <div className="max-w-[1200px] mx-auto px-6 flex h-full">
           <div className="bg-[#333] text-primary px-10 flex items-center justify-center font-bold text-lg whitespace-nowrap">
-            {about?.banner_label ?? 'About Us'}
+            {about?.banner_label ?? ''}
           </div>
           <div className="flex-1 bg-primary"></div>
         </div>
@@ -88,26 +88,31 @@ export default function AboutPage() {
                 <section className="bg-primary rounded-sm p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center min-h-[350px] mb-12">
                   <div className="md:w-1/2 z-10">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-secondary mb-4 leading-tight">
-                      {about?.hero.heading_line1 ?? 'Workshops'} <br /> {about?.hero.heading_line2 ?? 'that awesome!'}
+                      {about?.hero.heading_line1 ?? ''} <br /> {about?.hero.heading_line2 ?? ''}
                     </h1>
-                    <p className="text-secondary/80 mb-8 max-w-[350px] font-medium">
-                      {about?.hero.paragraph ??
-                        'We are a company that offers design and build services for you from initial sketches to the final construction.'}
-                    </p>
-                    <Link
-                      href={about?.hero.cta_href ?? '/contact'}
-                      className="bg-secondary text-white px-6 py-3 rounded-sm inline-flex items-center gap-2 hover:bg-secondary/90 transition-all font-bold"
-                    >
-                      {about?.hero.cta_label ?? 'get a quote'} <ChevronRight size={18} />
-                    </Link>
+                    {about?.hero.paragraph ? (
+                      <p className="text-secondary/80 mb-8 max-w-[350px] font-medium">
+                        {about.hero.paragraph}
+                      </p>
+                    ) : null}
+                    {about?.hero.cta_label && about?.hero.cta_href ? (
+                      <Link
+                        href={about.hero.cta_href}
+                        className="bg-secondary text-white px-6 py-3 rounded-sm inline-flex items-center gap-2 hover:bg-secondary/90 transition-all font-bold"
+                      >
+                        {about.hero.cta_label} <ChevronRight size={18} />
+                      </Link>
+                    ) : null}
                   </div>
                   <div className="md:w-1/2 relative h-[250px] md:h-[300px] w-full mt-8 md:mt-0">
-                    <Image
-                      src={about?.hero.image_url ?? '/about/hero.png'}
-                      alt="Laptop with dashboard"
-                      fill
-                      className="object-contain"
-                    />
+                    {about?.hero.image_url ? (
+                      <Image
+                        src={about.hero.image_url}
+                        alt=""
+                        fill
+                        className="object-contain"
+                      />
+                    ) : null}
                   </div>
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-white opacity-50"></div>
@@ -174,15 +179,19 @@ export default function AboutPage() {
         </div>
 
         <section className="mt-20 bg-primary p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 rounded-sm">
-          <h3 className="text-white text-xl md:text-2xl font-bold text-center md:text-left">
-            {about?.footer_cta.text ?? 'LOOKING FOR A FIRST-CLASS BUSINESS PLAN CONSULTANT?'}
-          </h3>
-          <Link
-            href={about?.footer_cta.button_href ?? '/contact'}
-            className="bg-secondary text-white px-8 py-3 rounded-sm flex items-center gap-2 hover:bg-secondary/90 transition-all font-bold whitespace-nowrap"
-          >
-            {about?.footer_cta.button_label ?? 'get a quote'} <ChevronRight size={18} />
-          </Link>
+          {about?.footer_cta.text ? (
+            <h3 className="text-white text-xl md:text-2xl font-bold text-center md:text-left">
+              {about.footer_cta.text}
+            </h3>
+          ) : null}
+          {about?.footer_cta.button_href && about?.footer_cta.button_label ? (
+            <Link
+              href={about.footer_cta.button_href}
+              className="bg-secondary text-white px-8 py-3 rounded-sm flex items-center gap-2 hover:bg-secondary/90 transition-all font-bold whitespace-nowrap"
+            >
+              {about.footer_cta.button_label} <ChevronRight size={18} />
+            </Link>
+          ) : null}
         </section>
       </div>
     </main>
@@ -238,8 +247,12 @@ function OverviewView({ about }: { about: AboutData | null }) {
 
         <div className="grid md:grid-cols-2 gap-12 mt-12">
           <div>
-            <h3 className="text-2xl font-bold text-secondary mb-6">{overview?.mission_heading ?? 'Our mission'}</h3>
-            <p className="text-gray-600 mb-6">{overview?.mission_intro}</p>
+            {overview?.mission_heading ? (
+              <h3 className="text-2xl font-bold text-secondary mb-6">{overview.mission_heading}</h3>
+            ) : null}
+            {overview?.mission_intro ? (
+              <p className="text-gray-600 mb-6">{overview.mission_intro}</p>
+            ) : null}
             <ul className="space-y-3">
               {(overview?.mission_bullets ?? []).map((item) => (
                 <li key={item.id} className="flex items-start gap-2 text-gray-600 text-sm">

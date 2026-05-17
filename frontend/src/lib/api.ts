@@ -49,31 +49,31 @@ export async function safeApiFetch<T>(path: string, options: FetchOptions = {}):
 }
 
 export function fetchSiteSettings() {
-  return apiFetch<SiteSettings>("/site", { revalidate: 300 });
+  return apiFetch<SiteSettings>("/site", { cache: "no-store" });
 }
 
 export function fetchNavigation() {
-  return apiFetch<Navigation>("/navigation", { revalidate: 300 });
+  return apiFetch<Navigation>("/navigation", { cache: "no-store" });
 }
 
 export function fetchHero() {
-  return apiFetch<HeroData>("/hero", { revalidate: 60 });
+  return apiFetch<HeroData>("/hero", { cache: "no-store" });
 }
 
 export function fetchServices() {
-  return apiFetch<ServiceCategory[]>("/services", { revalidate: 300 });
+  return apiFetch<ServiceCategory[]>("/services", { cache: "no-store" });
 }
 
 export function fetchCaseStudies() {
-  return apiFetch<CaseStudy[]>("/case-studies", { revalidate: 300 });
+  return apiFetch<CaseStudy[]>("/case-studies", { cache: "no-store" });
 }
 
 export function fetchTestimonials(page?: string) {
-  return apiFetch<Testimonial[]>(`/testimonials${page ? `?page=${encodeURIComponent(page)}` : ""}`, { revalidate: 300 });
+  return apiFetch<Testimonial[]>(`/testimonials${page ? `?page=${encodeURIComponent(page)}` : ""}`, { cache: "no-store" });
 }
 
 export function fetchAbout() {
-  return apiFetch<AboutData>("/about", { revalidate: 300 });
+  return apiFetch<AboutData>("/about", { cache: "no-store" });
 }
 
 export function fetchContactInfo() {
@@ -81,19 +81,19 @@ export function fetchContactInfo() {
 }
 
 export function fetchPublications() {
-  return apiFetch<Publication[]>("/resources/publications", { revalidate: 300 });
+  return apiFetch<Publication[]>("/resources/publications", { cache: "no-store" });
 }
 
 export function fetchFormTemplates() {
-  return apiFetch<Record<string, FormTemplate[]>>("/resources/forms", { revalidate: 300 });
+  return apiFetch<Record<string, FormTemplate[]>>("/resources/forms", { cache: "no-store" });
 }
 
 export function fetchNews() {
-  return apiFetch<NewsPost[]>("/resources/news", { revalidate: 300 });
+  return apiFetch<NewsPost[]>("/resources/news", { cache: "no-store" });
 }
 
 export function fetchCmsPage(slug: string) {
-  return apiFetch<CmsPage>(`/pages/${encodeURIComponent(slug)}`, { revalidate: 300 });
+  return apiFetch<CmsPage>(`/pages/${encodeURIComponent(slug)}`, { cache: "no-store" });
 }
 
 export async function submitContactForm(payload: ContactPayload): Promise<{ ok: true; message: string } | { ok: false; errors: Record<string, string[]> }> {
@@ -117,12 +117,3 @@ export async function submitContactForm(payload: ContactPayload): Promise<{ ok: 
 }
 
 export const submitContact = submitContactForm;
-
-export const apiFallbacks = {
-  logo: "/logo/gc.png",
-  heroSlides: [
-    { id: 1, image_url: "/Background Img/hero1.jpg", alt_text: "Hero slide 1", sort_order: 1 },
-    { id: 2, image_url: "/Background Img/hero2..jpg", alt_text: "Hero slide 2", sort_order: 2 },
-    { id: 3, image_url: "/Background Img/hero3.jpg", alt_text: "Hero slide 3", sort_order: 3 },
-  ],
-};

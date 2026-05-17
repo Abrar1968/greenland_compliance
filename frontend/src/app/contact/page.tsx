@@ -62,7 +62,7 @@ export default function ContactPage() {
       <div className="w-full h-[60px] mb-12">
         <div className="max-w-[1200px] mx-auto px-6 flex h-full">
           <div className="bg-[#333] text-primary px-10 flex items-center justify-center font-bold text-lg whitespace-nowrap">
-            {contact?.banner_label ?? 'Our Office'}
+            {contact?.banner_label ?? ''}
           </div>
           <div className="flex-1 bg-primary"></div>
         </div>
@@ -104,15 +104,15 @@ export default function ContactPage() {
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
                   <MapPin className="text-primary mt-1 shrink-0" size={20} />
-                  <span className="text-gray-300">{contact?.address ?? 'Bottola Bazar, Bhakurta, Savar, Dhaka-1313.'}</span>
+                  <span className="text-gray-300">{contact?.address ?? ''}</span>
                 </li>
                 <li className="flex items-center gap-4">
                   <Phone className="text-primary shrink-0" size={20} />
-                  <span className="text-gray-300">{contact?.phone ?? '+8801987644603'}</span>
+                  <span className="text-gray-300">{contact?.phone ?? ''}</span>
                 </li>
                 <li className="flex items-center gap-4">
                   <Mail className="text-primary shrink-0" size={20} />
-                  <span className="text-gray-300">{contact?.email ?? 'contact@greenlandcompliance.com'}</span>
+                  <span className="text-gray-300">{contact?.email ?? ''}</span>
                 </li>
               </ul>
             </div>

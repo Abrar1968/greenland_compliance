@@ -2503,7 +2503,7 @@ export default function ResourcesPage() {
               <p className={styles.pubCategory}>{pub.category}</p>
               <h4 className={styles.pubTitle}>{pub.title}</h4>
               <a
-                href={pub.file_url ?? '#'}
+                href={pub.file_url ?? undefined}
                 target={pub.file_url ? '_blank' : undefined}
                 rel="noopener noreferrer"
                 className={styles.downloadLink}
@@ -2528,7 +2528,7 @@ export default function ResourcesPage() {
                     <p className={styles.pubCategory}>{item.language}</p>
                     <h4 className={styles.pubTitle}>{item.title}</h4>
                     <a
-                      href={item.file_url ?? '#'}
+                      href={item.file_url ?? undefined}
                       target={item.file_url ? '_blank' : undefined}
                       rel="noopener noreferrer"
                       className={styles.downloadLink}
@@ -2566,7 +2566,7 @@ export default function ResourcesPage() {
                 </div>
                 <h4 className={styles.pubTitle}>{post.title}</h4>
                 <a
-                  href={post.external_url ?? '#'}
+                  href={post.external_url ?? undefined}
                   target={post.external_url ? '_blank' : undefined}
                   rel="noopener noreferrer"
                   className={styles.downloadLink}
