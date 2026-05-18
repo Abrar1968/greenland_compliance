@@ -46,7 +46,7 @@ export default function CaseStudiesPage() {
 
           <div className={styles.grid}>
             {caseStudies.map((study) => (
-              <div key={study.id} className={styles.caseItem}>
+              <Link key={study.id} href={`/case-studies/${study.slug}`} className={styles.caseItem}>
                 <div className={styles.imageWrapper}>
                   {study.image_url ? (
                     <Image
@@ -64,7 +64,7 @@ export default function CaseStudiesPage() {
                 </div>
                 <span className={styles.category}>{study.category.name}</span>
                 <h3 className={styles.title}>{study.title}</h3>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

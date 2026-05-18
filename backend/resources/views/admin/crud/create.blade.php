@@ -3,9 +3,20 @@
 @section('title', 'Create '.$resource['title'])
 
 @section('content')
-<form method="POST" action="{{ route('admin.'.$resource['route'].'.store') }}" enctype="multipart/form-data" class="rounded bg-white p-6 shadow">
+<div class="admin-page-heading">
+    <div>
+        <div class="admin-page-kicker">Create</div>
+        <h1 class="admin-page-title">{{ $resource['title'] }}</h1>
+        <p class="admin-page-copy">Add a new record for the frontend API.</p>
+    </div>
+    <a href="{{ route('admin.'.$resource['route'].'.index') }}" class="admin-btn admin-btn-muted">Back to list</a>
+</div>
+
+<form method="POST" action="{{ route('admin.'.$resource['route'].'.store') }}" enctype="multipart/form-data" class="admin-card admin-card-pad">
     @csrf
     @include('admin.crud.form')
-    <button class="rounded bg-primary px-4 py-2 font-semibold text-white">Save</button>
+    <div class="mt-6 flex justify-end">
+        <button class="admin-btn admin-btn-primary">Save</button>
+    </div>
 </form>
 @endsection

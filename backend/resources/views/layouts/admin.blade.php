@@ -7,33 +7,80 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="min-h-screen bg-gray-100 text-gray-800">
-    <div class="flex min-h-screen">
-        @auth('admin')
-            <aside class="w-72 shrink-0 bg-secondary text-white">
-                <div class="border-b border-white/10 p-5">
-                    <div class="font-bold">Greenland Admin</div>
-                    <div class="text-xs text-white/60">{{ auth('admin')->user()->email }}</div>
-                </div>
+<body class="@auth('admin') min-h-screen text-gray-800 @else admin-auth-body @endauth">
+    @auth('admin')
+        <div class="admin-shell">
+            <aside class="admin-sidebar">
+                <a href="{{ route('admin.dashboard') }}" class="admin-brand">
+                    <span class="admin-brand-mark">G</span>
+                    <span>
+                        <span class="admin-brand-title">Greenland Admin</span>
+                        <span class="admin-brand-subtitle block">Business & Compliance</span>
+                    </span>
+                </a>
+
                 @include('admin.partials.sidebar-nav')
+
+                <div class="admin-sidebar-footer">
+                    <a href="{{ rtrim(config('app.frontend_url'), '/') }}" target="_blank" class="admin-btn admin-btn-muted w-full border-white/15 bg-transparent text-white hover:bg-white/5">
+                        View Website
+                        <span aria-hidden="true">-></span>
+                    </a>
+                </div>
             </aside>
-        @endauth
-        <main class="flex-1">
-            @auth('admin')
-                <header class="flex items-center justify-between border-b bg-white px-8 py-4">
-                    <h1 class="text-xl font-semibold">@yield('title', 'Admin')</h1>
-                    <form method="POST" action="{{ route('admin.logout') }}">
-                        @csrf
-                        <button class="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white">Logout</button>
-                    </form>
+
+            <main class="admin-main">
+                <header class="admin-topbar">
+                    <div class="admin-topbar-title">
+                        <span class="admin-menu-button" aria-hidden="true">
+                            <span class="text-lg leading-none">|||</span>
+                        </span>
+                        <span>@yield('title', 'Admin')</span>
+                    </div>
+
+                    <div class="admin-topbar-actions">
+                        <div class="admin-search" aria-label="Search placeholder">
+                            <span class="font-bold" aria-hidden="true">S</span>
+                            <span>Search content</span>
+                        </div>
+                        <span class="admin-menu-button" title="Unread messages">
+                            {{ \App\Models\ContactMessage::where('is_read', false)->count() }}
+                        </span>
+                        <span class="admin-avatar inline-flex items-center justify-center">
+                            {{ strtoupper(substr(auth('admin')->user()->name ?? 'A', 0, 1)) }}
+                        </span>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button class="admin-btn admin-btn-muted border-white/15 bg-white/5 text-white hover:bg-white/10">Logout</button>
+                        </form>
+                    </div>
                 </header>
-            @endauth
-            <section class="p-8">
+
+                <section class="admin-content">
+                    @if(session('status'))
+                        <div class="admin-alert admin-alert-success">{{ session('status') }}</div>
+                    @endif
+                    @if($errors->any())
+                        <div class="admin-alert admin-alert-error">
+                            <ul class="list-disc pl-5">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    @yield('content')
+                </section>
+            </main>
+        </div>
+    @else
+        <main class="flex min-h-screen items-center justify-center px-5 py-10">
+            <div class="w-full max-w-md">
                 @if(session('status'))
-                    <div class="mb-4 rounded border border-green-200 bg-green-50 px-4 py-3 text-green-700">{{ session('status') }}</div>
+                    <div class="admin-alert admin-alert-success">{{ session('status') }}</div>
                 @endif
                 @if($errors->any())
-                    <div class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+                    <div class="admin-alert admin-alert-error">
                         <ul class="list-disc pl-5">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -42,8 +89,8 @@
                     </div>
                 @endif
                 @yield('content')
-            </section>
+            </div>
         </main>
-    </div>
+    @endauth
 </body>
 </html>

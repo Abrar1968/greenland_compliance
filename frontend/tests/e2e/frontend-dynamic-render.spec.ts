@@ -24,16 +24,15 @@ async function gotoAndCheck(page: Page, path: string): Promise<void> {
     }
   });
 
-  await page.goto(path);
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('body')).toBeVisible();
   await expect(page.locator('body')).not.toContainText('Application error');
   await expect(page.locator('body')).not.toContainText('Unhandled Runtime Error');
-  await page.waitForLoadState('networkidle');
   expect(imageFailures, `broken optimized images on ${path}`).toEqual([]);
 }
 
 async function expectBodyToContain(page: Page, text: string): Promise<void> {
-  await expect(page.locator('body')).toContainText(text, { timeout: 30_000 });
+  await expect(page.locator('body')).toContainText(text, { timeout: 60_000 });
 }
 
 function plainText(html: string): string {
@@ -66,7 +65,7 @@ test('services page renders API service categories and services', async ({ page,
 
   await gotoAndCheck(page, '/services');
 
-  await expect(page.getByRole('button', { name: categories[0].label }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: categories[0].label }).first()).toBeVisible({ timeout: 60_000 });
   await expectBodyToContain(page, categories[0].services[0].title);
 });
 

@@ -3,10 +3,21 @@
 @section('title', 'Edit '.$resource['title'])
 
 @section('content')
-<form method="POST" action="{{ route('admin.'.$resource['route'].'.update', $item) }}" enctype="multipart/form-data" class="rounded bg-white p-6 shadow">
+<div class="admin-page-heading">
+    <div>
+        <div class="admin-page-kicker">Edit</div>
+        <h1 class="admin-page-title">{{ $resource['title'] }} #{{ $item->id }}</h1>
+        <p class="admin-page-copy">Update this record without changing the public frontend structure.</p>
+    </div>
+    <a href="{{ route('admin.'.$resource['route'].'.index') }}" class="admin-btn admin-btn-muted">Back to list</a>
+</div>
+
+<form method="POST" action="{{ route('admin.'.$resource['route'].'.update', $item) }}" enctype="multipart/form-data" class="admin-card admin-card-pad">
     @csrf
     @method('PUT')
     @include('admin.crud.form')
-    <button class="rounded bg-primary px-4 py-2 font-semibold text-white">Update</button>
+    <div class="mt-6 flex justify-end">
+        <button class="admin-btn admin-btn-primary">Update</button>
+    </div>
 </form>
 @endsection

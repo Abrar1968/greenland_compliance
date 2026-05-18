@@ -1,47 +1,63 @@
-<nav class="p-4 text-sm space-y-1">
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.dashboard') }}">Dashboard</a>
+@php
+    $groups = [
+        'Main' => [
+            ['route' => 'admin.dashboard', 'label' => 'Dashboard', 'icon' => 'D', 'active' => ['admin.dashboard']],
+        ],
+        'Site' => [
+            ['route' => 'admin.site-settings.edit', 'label' => 'Site Settings', 'icon' => 'S', 'active' => ['admin.site-settings.*']],
+            ['route' => 'admin.social-links.index', 'label' => 'Social Links', 'icon' => 'L', 'active' => ['admin.social-links.*']],
+        ],
+        'Homepage' => [
+            ['route' => 'admin.hero-settings.edit', 'label' => 'Hero Settings', 'icon' => 'H', 'active' => ['admin.hero-settings.*']],
+            ['route' => 'admin.hero-slides.index', 'label' => 'Hero Slides', 'icon' => 'B', 'active' => ['admin.hero-slides.*']],
+        ],
+        'Navigation' => [
+            ['route' => 'admin.nav-items.index', 'label' => 'Nav Items', 'icon' => 'N', 'active' => ['admin.nav-items.*']],
+        ],
+        'Services' => [
+            ['route' => 'admin.service-categories.index', 'label' => 'Service Categories', 'icon' => 'C', 'active' => ['admin.service-categories.*']],
+            ['route' => 'admin.services.index', 'label' => 'Services', 'icon' => 'R', 'active' => ['admin.services.*']],
+        ],
+        'Case Studies' => [
+            ['route' => 'admin.case-study-categories.index', 'label' => 'Case Study Categories', 'icon' => 'K', 'active' => ['admin.case-study-categories.*']],
+            ['route' => 'admin.case-studies.index', 'label' => 'Case Studies', 'icon' => 'Y', 'active' => ['admin.case-studies.*']],
+        ],
+        'About' => [
+            ['route' => 'admin.about-settings.edit', 'label' => 'About Settings', 'icon' => 'A', 'active' => ['admin.about-settings.*']],
+            ['route' => 'admin.timeline-milestones.index', 'label' => 'Timeline Milestones', 'icon' => 'T', 'active' => ['admin.timeline-milestones.*']],
+            ['route' => 'admin.mission-bullets.index', 'label' => 'Mission Bullets', 'icon' => 'M', 'active' => ['admin.mission-bullets.*']],
+            ['route' => 'admin.approach-cards.index', 'label' => 'Approach Cards', 'icon' => 'P', 'active' => ['admin.approach-cards.*']],
+            ['route' => 'admin.achievements.index', 'label' => 'Achievements', 'icon' => 'G', 'active' => ['admin.achievements.*']],
+            ['route' => 'admin.partners.index', 'label' => 'Partners', 'icon' => 'O', 'active' => ['admin.partners.*']],
+            ['route' => 'admin.team-members.index', 'label' => 'Team Members', 'icon' => 'U', 'active' => ['admin.team-members.*']],
+        ],
+        'Engagement' => [
+            ['route' => 'admin.testimonials.index', 'label' => 'Testimonials', 'icon' => 'Q', 'active' => ['admin.testimonials.*']],
+            ['route' => 'admin.faqs.index', 'label' => 'FAQs', 'icon' => 'F', 'active' => ['admin.faqs.*']],
+        ],
+        'Contact' => [
+            ['route' => 'admin.contact-departments.index', 'label' => 'Contact Departments', 'icon' => 'E', 'active' => ['admin.contact-departments.*']],
+            ['route' => 'admin.contact-messages.index', 'label' => 'Contact Messages', 'icon' => 'I', 'active' => ['admin.contact-messages.*']],
+        ],
+        'Resources' => [
+            ['route' => 'admin.publications.index', 'label' => 'Publications', 'icon' => 'J', 'active' => ['admin.publications.*']],
+            ['route' => 'admin.form-templates.index', 'label' => 'Forms & Templates', 'icon' => 'F', 'active' => ['admin.form-templates.*']],
+            ['route' => 'admin.news-posts.index', 'label' => 'News Posts', 'icon' => 'W', 'active' => ['admin.news-posts.*']],
+        ],
+        'CMS Pages' => [
+            ['route' => 'admin.pages.index', 'label' => 'Pages', 'icon' => 'P', 'active' => ['admin.pages.*']],
+        ],
+    ];
+@endphp
 
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Site</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.site-settings.edit') }}">Site Settings</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.social-links.index') }}">Social Links</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Homepage</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.hero-settings.edit') }}">Hero Settings</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.hero-slides.index') }}">Hero Slides</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Navigation</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.nav-items.index') }}">Nav Items</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Services</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.service-categories.index') }}">Service Categories</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.services.index') }}">Services</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Case Studies</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.case-study-categories.index') }}">Case Study Categories</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.case-studies.index') }}">Case Studies</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">About</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.about-settings.edit') }}">About Settings</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.timeline-milestones.index') }}">Timeline Milestones</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.mission-bullets.index') }}">Mission Bullets</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.approach-cards.index') }}">Approach Cards</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.achievements.index') }}">Achievements</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.partners.index') }}">Partners</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.team-members.index') }}">Team Members</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Engagement</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.testimonials.index') }}">Testimonials</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.faqs.index') }}">FAQs</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Contact</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.contact-departments.index') }}">Contact Departments</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.contact-messages.index') }}">Contact Messages</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">Resources</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.publications.index') }}">Publications</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.form-templates.index') }}">Forms & Templates</a>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.news-posts.index') }}">News Posts</a>
-
-    <div class="pt-3 text-xs uppercase tracking-wide text-white/50">CMS Pages</div>
-    <a class="block rounded px-3 py-2 hover:bg-white/10" href="{{ route('admin.pages.index') }}">Pages</a>
+<nav class="admin-nav">
+    @foreach($groups as $group => $links)
+        <div class="admin-nav-section">{{ $group }}</div>
+        @foreach($links as $link)
+            <a class="admin-nav-link {{ request()->routeIs(...$link['active']) ? 'admin-nav-link-active' : '' }}" href="{{ route($link['route']) }}">
+                <span class="admin-nav-icon">{{ $link['icon'] }}</span>
+                <span>{{ $link['label'] }}</span>
+            </a>
+        @endforeach
+    @endforeach
 </nav>

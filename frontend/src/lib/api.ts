@@ -4,6 +4,7 @@ import type {
   ApiGrouped,
   ApiSingle,
   CaseStudy,
+  CaseStudyDetail,
   CmsPage,
   ContactInfo,
   ContactPayload,
@@ -66,6 +67,10 @@ export function fetchServices() {
 
 export function fetchCaseStudies() {
   return apiFetch<CaseStudy[]>("/case-studies", { cache: "no-store" });
+}
+
+export function fetchCaseStudy(slug: string) {
+  return apiFetch<CaseStudyDetail>(`/case-studies/${encodeURIComponent(slug)}`, { cache: "no-store" });
 }
 
 export function fetchTestimonials(page?: string) {

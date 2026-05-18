@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
             'office_image_path' => null,
             'company_presentation_file' => null,
             'how_we_work_video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'map_embed_url' => 'https://www.google.com/maps/embed?pb=!1m18!',
+            'map_embed_url' => 'https://www.google.com/maps?q=Bottola%20Bazar%2C%20Bhakurta%2C%20Savar%2C%20Dhaka-1313%2C%20Bangladesh&output=embed',
         ]);
 
         $links = [

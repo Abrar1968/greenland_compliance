@@ -103,6 +103,10 @@ export interface CaseStudy {
   category: CaseStudyCategory;
 }
 
+export interface CaseStudyDetail extends CaseStudy {
+  body: string | null;
+}
+
 export interface Testimonial {
   id: number;
   author: string;

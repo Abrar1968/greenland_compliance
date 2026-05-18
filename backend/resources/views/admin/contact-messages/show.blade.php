@@ -3,21 +3,30 @@
 @section('title', 'Contact Message')
 
 @section('content')
-<div class="rounded bg-white p-6 shadow">
-    <dl class="grid gap-4 md:grid-cols-2">
-        <div><dt class="text-sm text-gray-500">Name</dt><dd class="font-medium">{{ $message->first_name }}</dd></div>
-        <div><dt class="text-sm text-gray-500">Email</dt><dd class="font-medium">{{ $message->email }}</dd></div>
-        <div><dt class="text-sm text-gray-500">Phone</dt><dd>{{ $message->phone }}</dd></div>
-        <div><dt class="text-sm text-gray-500">Received</dt><dd>{{ $message->created_at }}</dd></div>
+<div class="admin-page-heading">
+    <div>
+        <div class="admin-page-kicker">Contact</div>
+        <h1 class="admin-page-title">Contact Message</h1>
+        <p class="admin-page-copy">Read the submitted enquiry and remove it when it is no longer needed.</p>
+    </div>
+    <a href="{{ route('admin.contact-messages.index') }}" class="admin-btn admin-btn-muted">Back to inbox</a>
+</div>
+
+<div class="admin-card admin-card-pad">
+    <dl class="admin-form-grid">
+        <div><dt class="admin-muted-label">Name</dt><dd class="mt-1 font-bold">{{ $message->first_name }}</dd></div>
+        <div><dt class="admin-muted-label">Email</dt><dd class="mt-1 font-bold">{{ $message->email }}</dd></div>
+        <div><dt class="admin-muted-label">Phone</dt><dd class="mt-1">{{ $message->phone }}</dd></div>
+        <div><dt class="admin-muted-label">Received</dt><dd class="mt-1">{{ $message->created_at }}</dd></div>
     </dl>
     <div class="mt-6">
-        <div class="text-sm text-gray-500">Message</div>
-        <p class="mt-2 whitespace-pre-line">{{ $message->message }}</p>
+        <div class="admin-muted-label">Message</div>
+        <p class="mt-2 whitespace-pre-line rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-800">{{ $message->message }}</p>
     </div>
-    <form method="POST" action="{{ route('admin.contact-messages.destroy', $message) }}" class="mt-6" onsubmit="return confirm('Delete this message?')">
+    <form method="POST" action="{{ route('admin.contact-messages.destroy', $message) }}" class="mt-6 flex justify-end" onsubmit="return confirm('Delete this message?')">
         @csrf
         @method('DELETE')
-        <button class="rounded border border-red-300 px-4 py-2 text-red-600">Delete</button>
+        <button class="admin-btn admin-btn-danger">Delete</button>
     </form>
 </div>
 @endsection
